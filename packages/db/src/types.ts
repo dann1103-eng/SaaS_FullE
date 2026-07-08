@@ -158,6 +158,122 @@ export type Database = {
           },
         ];
       };
+      notification_deliveries: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          channel: string;
+          template_key: string;
+          recipient: string;
+          entity_ref: string;
+          variables: Json;
+          status: string;
+          attempts: number;
+          max_attempts: number;
+          next_attempt_at: string;
+          last_error: string | null;
+          provider_id: string | null;
+          sent_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          channel: string;
+          template_key: string;
+          recipient: string;
+          entity_ref: string;
+          variables?: Json;
+          status?: string;
+          attempts?: number;
+          max_attempts?: number;
+          next_attempt_at?: string;
+          last_error?: string | null;
+          provider_id?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          channel?: string;
+          template_key?: string;
+          recipient?: string;
+          entity_ref?: string;
+          variables?: Json;
+          status?: string;
+          attempts?: number;
+          max_attempts?: number;
+          next_attempt_at?: string;
+          last_error?: string | null;
+          provider_id?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          user_id: string;
+          type: string;
+          title: string;
+          body: string | null;
+          link: string | null;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          user_id: string;
+          type: string;
+          title: string;
+          body?: string | null;
+          link?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          user_id?: string;
+          type?: string;
+          title?: string;
+          body?: string | null;
+          link?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       memberships: {
         Row: {
           id: string;
@@ -458,6 +574,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      claim_deliveries: {
+        Args: { p_limit?: number };
+        Returns: Database["public"]["Tables"]["notification_deliveries"]["Row"][];
+      };
       claim_jobs: {
         Args: { p_limit?: number };
         Returns: Database["public"]["Tables"]["jobs"]["Row"][];

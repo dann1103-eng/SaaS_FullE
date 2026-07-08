@@ -10,7 +10,7 @@ producto por fases vive en [docs/DOC10](docs/DOC10-Roadmap.md).
 | ✅ 2026-07-08 | 1 | Migración 0001 tenancy + RLS template + test de aislamiento + seeds | DOC3 §1 |
 | ✅ 2026-07-08 | 2 | C1 Auth (Supabase Auth + memberships + JWT claims + middleware + requirePermission) | DOC3 §2 |
 | ✅ 2026-07-08 | 3 | C4 outbox domain_events + jobs (cosecha runner FM) + cron tick | DOC3 §3, donante FM |
-| ⬜ | 4 | C5 notificaciones (deliveries idempotentes + feed + transporte email) | DOC3 §4, donantes ADEC/TAS |
+| ✅ 2026-07-08 | 4 | C5 notificaciones (deliveries idempotentes + feed + transporte email) | DOC3 §4, donantes ADEC/TAS |
 | ⬜ | 5 | C7 audit + C6 storage helpers + C3 dimensiones + ui-kit base (cosecha tokens FM/Kinetic) | DOC3, DOC5 §6 |
 | ⬜ | 6 | Registro self-service + tenant_modules + manifest loader + navegación dinámica | DOC3 §1, DOC7 §4 |
 | ⬜ | 7 | **M01 CRM** (spec→schema→domain→UI; jerarquía+dedupe de TAS) | DOC6 M01, DOC4 |
@@ -120,3 +120,30 @@ Después de la sesión 16: design partners reales → feedback → Fase 2 (DOC10
 - **Deploy pendiente (Vercel, prerrequisito DOC12 §1):** al crear el
   proyecto Vercel, configurar el cron a `/api/cron/tick` cada minuto con
   `CRON_SECRET` en las env vars.
+
+## Notas de la Sesión 4 (2026-07-08)
+
+- **Primera cosecha real de donantes** (rutas ya en CLAUDE.md): ADEC (motor
+  de correos — su TOCTOU documentado motivó el **ADR-001**: índice de
+  idempotencia TOTAL + flujo reservar→enviar→marcar; DOC3 §4 actualizado),
+  TAS (interfaz de transportes por prioridad de config + TEST_MODE con
+  banner, portado), FM (runner validado 1:1 con el nuestro; su gap de jobs
+  huérfanos se cerró aquí con el **watchdog** en claim_jobs, y su bug 100×
+  de cost_usd_cents quedó reportado como tarea aparte para FM — ojo en la
+  Sesión 15: NO portar esa fórmula tal cual).
+- **C5 verificado end-to-end real**: job fallido → `core.job.failed_final`
+  → productor (feed + delivery reservada) → tick envía **email real vía
+  Resend** (provider_id auditado) → campanita y feed en navegador →
+  marcar leído. Fixture eliminada, residuo 0.
+- **Migración 0005** (hallazgo de la prueba real): la elegibilidad de
+  deliveries se decide con now() de la BD vía `claim_deliveries` (RPC solo
+  service_role) — comparar contra el reloj del app server perdía filas por
+  milisegundos de desfase.
+- **TEST_MODE**: global por env (`EMAIL_TEST_MODE` + `EMAIL_TEST_REDIRECT`)
+  y por tenant (`tenants.settings.notifications.test_mode` / `test_email`).
+  En esta máquina queda ACTIVADO redirigiendo al Gmail de Daniel — default
+  seguro de desarrollo.
+- **Pendientes anotados**: portar el fire-and-forget de FM (fetch keepalive
+  tras encolar + ventana `wait`) cuando el primer server action encole jobs;
+  theming de plantillas con `units.theme` cuando toque branding; Resend con
+  dominio verificado cuando exista [NOMBRE].

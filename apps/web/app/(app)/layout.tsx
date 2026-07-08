@@ -15,6 +15,12 @@ export default async function AppLayout({
 
   const activeTenant = memberships?.find((m) => m.tenant_id === tenantId)?.tenant;
 
+  const { count: unreadCount } = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .is("read_at", null);
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex items-center justify-between gap-4 border-b border-neutral-200 px-6 py-3 dark:border-neutral-800">
@@ -35,6 +41,13 @@ export default async function AppLayout({
         </div>
 
         <div className="flex items-center gap-3">
+          <a
+            href="/notifications"
+            data-testid="notifications-link"
+            className="rounded-md border border-neutral-300 px-2 py-1 text-sm dark:border-neutral-700"
+          >
+            🔔{(unreadCount ?? 0) > 0 ? ` ${unreadCount}` : ""}
+          </a>
           {memberships && memberships.length > 1 && (
             <form action={switchTenant} className="flex items-center gap-2">
               <label htmlFor="tenantId" className="sr-only">

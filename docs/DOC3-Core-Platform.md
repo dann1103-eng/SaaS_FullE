@@ -93,7 +93,7 @@ Guardar crudo → responder 200 → procesar en `after()`/job → cron de reproc
 ## 4. C5 · Notificaciones
 
 - `notifications(tenant_id, user_id, type, title, body, link, read_at)` — feed persistente, productores por evento.
-- `notification_deliveries(tenant_id, channel, template_key, recipient, entity_ref, status, attempts, last_error, sent_at)` con **índice único parcial anti-duplicado** por `(entity_ref, recipient, template_key) where status='sent'` (ADEC).
+- `notification_deliveries(tenant_id, channel, template_key, recipient, entity_ref, status, attempts, last_error, sent_at)` con **índice único TOTAL anti-duplicado** por `(tenant_id, channel, template_key, recipient, entity_ref)` y flujo reservar→enviar→marcar (endurecido sobre el parcial de ADEC por su ventana TOCTOU documentada — ver docs/adr/001).
 - Transportes tras interfaz: `email` (Resend con dominio por tenant → fallback SMTP), `whatsapp` (M17), `sms` (futuro). Prioridad configurada, `TEST_MODE` por tenant con banner y redirect (TAS).
 - Plantillas por tenant/Unit con theming (colores de marca — ADEC) y variables tipadas; preferencias por usuario.
 

@@ -33,3 +33,30 @@ export {
 } from "./jobs/runner";
 
 export { eventSubscriptions, jobRegistry } from "./registries";
+
+export { applyTestMode, type OutgoingEmail, type TestModeConfig } from "./notifications/test-mode";
+export {
+  emailLayout,
+  escapeHtml,
+  registerTemplate,
+  renderTemplate,
+  type RenderedEmail,
+  type TemplateVariables,
+} from "./notifications/templates";
+export {
+  createResendTransport,
+  selectEmailTransport,
+  type EmailTransport,
+  type SendResult,
+} from "./notifications/transport";
+export {
+  createDelivery,
+  createNotification,
+  processDeliveriesTick,
+  type CreateDeliveryInput,
+  type CreateDeliveryResult,
+  type CreateNotificationInput,
+  type DeliveriesTickConfig,
+  type DeliveriesTickResult,
+} from "./notifications/deliver";
+export { fetchTenantAdmins, jobFailedFinalProducer } from "./notifications/producers";
