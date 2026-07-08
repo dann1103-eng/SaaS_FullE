@@ -9,7 +9,7 @@ producto por fases vive en [docs/DOC10](docs/DOC10-Roadmap.md).
 | ✅ 2026-07-08 | 0 | Scaffold monorepo + CI + CLAUDE.md | DOC3 §0, DOC12 §3 |
 | ✅ 2026-07-08 | 1 | Migración 0001 tenancy + RLS template + test de aislamiento + seeds | DOC3 §1 |
 | ✅ 2026-07-08 | 2 | C1 Auth (Supabase Auth + memberships + JWT claims + middleware + requirePermission) | DOC3 §2 |
-| ⬜ | 3 | C4 outbox domain_events + jobs (cosecha runner FM) + cron tick | DOC3 §3, donante FM |
+| ✅ 2026-07-08 | 3 | C4 outbox domain_events + jobs (cosecha runner FM) + cron tick | DOC3 §3, donante FM |
 | ⬜ | 4 | C5 notificaciones (deliveries idempotentes + feed + transporte email) | DOC3 §4, donantes ADEC/TAS |
 | ⬜ | 5 | C7 audit + C6 storage helpers + C3 dimensiones + ui-kit base (cosecha tokens FM/Kinetic) | DOC3, DOC5 §6 |
 | ⬜ | 6 | Registro self-service + tenant_modules + manifest loader + navegación dinámica | DOC3 §1, DOC7 §4 |
@@ -94,3 +94,29 @@ Después de la sesión 16: design partners reales → feedback → Fase 2 (DOC10
   magic link/OAuth, sesión única por dispositivo (SessionSentinel),
   impersonación auditada, flags de onboarding. El registro self-service es
   la Sesión 6.
+
+## Notas de la Sesión 3 (2026-07-08)
+
+- **C4 operativo y verificado por HTTP real** contra el proyecto: migración
+  0002 (`domain_events` outbox append-only por API, `jobs` con dedupe único
+  parcial y `claim_jobs` FOR UPDATE SKIP LOCKED solo service_role,
+  `job_events` de auditoría, `app.emit_domain_event` para RPCs/triggers) +
+  runner en `packages/core` (claim→handler→succeeded/failed con backoff
+  min(60s, 2^attempts) TDD) + despachador del outbox + `/api/cron/tick`
+  (Bearer CRON_SECRET en comparación de tiempo constante). Tick real: 401
+  sin token; con token noop→succeeded, kind desconocido→failed_final→evento
+  `core.job.failed_final` emitido y despachado en el mismo tick.
+- **Bug cazado por la prueba real:** el proxy interceptaba `/api/*` y
+  redirigía el tick a /login — las rutas API quedaron excluidas del matcher
+  (traen su propia auth: CRON_SECRET hoy, HMAC de webhooks después).
+- **Suites de BD:** el harness compartido (`tooling/tests/tenant-isolation/
+  src/harness.ts`) ahora sirve a 2 suites (18 asserts) — aislamiento 0001 +
+  contratos C4. Toda migración nueva añade su suite ahí.
+- **Cosecha FM pendiente:** el runner se implementó desde los contratos de
+  DOC3 §3 (sin acceso al donante). Cuando haya rutas de donantes, contrastar
+  con `ai_jobs` de FM (metering cost_cents, trigger fire-and-forget tras
+  encolar) y portar lo que falte. `inbound_events`/webhooks salientes llegan
+  con su primer consumidor (Sesiones 4/10).
+- **Deploy pendiente (Vercel, prerrequisito DOC12 §1):** al crear el
+  proyecto Vercel, configurar el cron a `/api/cron/tick` cada minuto con
+  `CRON_SECRET` en las env vars.
