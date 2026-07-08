@@ -12,6 +12,40 @@ export async function logout() {
   redirect("/login");
 }
 
+const MarkReadSchema = z.object({
+  notificationId: z.uuid({ error: "Notificación inválida." }),
+});
+
+export async function markNotificationRead(formData: FormData) {
+  const parsed = MarkReadSchema.safeParse({ notificationId: formData.get("notificationId") });
+  if (!parsed.success) return;
+
+  const supabase = await supabaseServer();
+  // RLS (user_id = auth.uid()) + grant de columna limitan a lo propio y a read_at.
+  await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .eq("id", parsed.data.notificationId);
+  revalidatePath("/notifications");
+  revalidatePath("/", "layout");
+}
+
+export async function markAllNotificationsRead() {
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .eq("user_id", user.id)
+    .is("read_at", null);
+  revalidatePath("/notifications");
+  revalidatePath("/", "layout");
+}
+
 const SwitchTenantSchema = z.object({
   tenantId: z.uuid({ error: "Tenant inválido." }),
 });

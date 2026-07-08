@@ -43,10 +43,12 @@ vive en docs/DOC1..DOC12. Ante cualquier duda de diseño: el documento manda.
   tests en origen — portarlos).
 
 ## Repos donantes (solo lectura, para cosechar)
-[rutas locales a fm_full_y_connect, kinetic, tas, caaa, adec-tienda, innolatte]
-
-> Nota: las rutas locales a los repos donantes se agregarán después, cuando haya
-> acceso de lectura desde esta máquina (prerrequisito DOC12 §1).
+- FM CRM:      C:\Users\Daniel\Desktop\FM CRM
+- Kinetic:     C:\Users\Daniel\Desktop\Kinetic Web
+- TAS:         C:\Users\Daniel\Desktop\TAS platform
+- CAAA:        C:\Users\Daniel\Desktop\CAAA modulo op+admin
+- ADEC:        C:\Users\Daniel\Desktop\ADEC tienda
+- INNOLATTE:   C:\Users\Daniel\Desktop\Paletas INNOLATTE
 
 Flujo de cosecha (DOC4): 1) localizar la lógica pura y sus tests → portar a packages/domain
 adaptando nombres al modelo DOC5; 2) reescribir esquema con tenant_id; 3) UI al final.

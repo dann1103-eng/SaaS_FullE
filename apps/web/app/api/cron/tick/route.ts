@@ -6,7 +6,9 @@ import {
   dispatchDomainEventsTick,
   eventSubscriptions,
   jobRegistry,
+  processDeliveriesTick,
   runJobsTick,
+  selectEmailTransport,
 } from "@plataforma/core";
 import { createSupabaseAdminClient } from "@plataforma/db";
 import { NextResponse } from "next/server";
@@ -36,10 +38,18 @@ async function handleTick(request: Request): Promise<NextResponse> {
   }
 
   const admin = createSupabaseAdminClient();
+  // Orden deliberado: jobs (pueden emitir eventos) → eventos (los productores
+  // crean notificaciones/entregas) → entregas (se envían en el MISMO tick).
   const jobs = await runJobsTick(admin, jobRegistry);
   const events = await dispatchDomainEventsTick(admin, eventSubscriptions);
+  const deliveries = await processDeliveriesTick(admin, {
+    transport: selectEmailTransport({ RESEND_API_KEY: process.env.RESEND_API_KEY }),
+    fromAddress: process.env.EMAIL_FROM ?? "Plataforma <onboarding@resend.dev>",
+    globalTestMode: (process.env.EMAIL_TEST_MODE ?? "false").toLowerCase() === "true",
+    testRedirectTo: process.env.EMAIL_TEST_REDIRECT ?? "",
+  });
 
-  return NextResponse.json({ ok: true, jobs, events });
+  return NextResponse.json({ ok: true, jobs, events, deliveries });
 }
 
 export async function GET(request: Request) {
