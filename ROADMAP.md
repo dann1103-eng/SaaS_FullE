@@ -8,7 +8,7 @@ producto por fases vive en [docs/DOC10](docs/DOC10-Roadmap.md).
 |---|---|---|---|
 | ✅ 2026-07-08 | 0 | Scaffold monorepo + CI + CLAUDE.md | DOC3 §0, DOC12 §3 |
 | ✅ 2026-07-08 | 1 | Migración 0001 tenancy + RLS template + test de aislamiento + seeds | DOC3 §1 |
-| ⬜ | 2 | C1 Auth (Supabase Auth + memberships + JWT claims + middleware + requirePermission) | DOC3 §2 |
+| ✅ 2026-07-08 | 2 | C1 Auth (Supabase Auth + memberships + JWT claims + middleware + requirePermission) | DOC3 §2 |
 | ⬜ | 3 | C4 outbox domain_events + jobs (cosecha runner FM) + cron tick | DOC3 §3, donante FM |
 | ⬜ | 4 | C5 notificaciones (deliveries idempotentes + feed + transporte email) | DOC3 §4, donantes ADEC/TAS |
 | ⬜ | 5 | C7 audit + C6 storage helpers + C3 dimensiones + ui-kit base (cosecha tokens FM/Kinetic) | DOC3, DOC5 §6 |
@@ -70,3 +70,27 @@ Después de la sesión 16: design partners reales → feedback → Fase 2 (DOC10
   service_role key y `SUPABASE_DB_URL` del proyecto definitivo.
 - **Seeds** (`supabase/seed.sql`): solo stack local/CI (2 tenants demo);
   `db push` no los ejecuta contra remoto, por diseño.
+
+## Notas de la Sesión 2 (2026-07-08)
+
+- **C1 Auth operativo y verificado e2e en navegador real** contra el proyecto
+  definitivo: proxy (Next 16 renombró middleware→`proxy.ts`) con refresh de
+  sesión y redirects optimistas · login con server action + Zod ·
+  `requireAuth` (DAL cacheada) · switcher de tenant (update de
+  `active_tenant_id` + `refreshSession` → claim nuevo) · logout ·
+  `requirePermission()`/`fetchGrants` en `packages/core` con matcher TDD en
+  **paridad exacta** con `app.has_permission` SQL (si cambia la semántica,
+  cambiar SQL primero y tests después).
+- **`packages/db`:** clientes browser/server(adaptador de cookies)/admin +
+  env tipado con Zod. **`types.ts` está escrito a mano** contra el esquema
+  real: `supabase gen types --db-url` exige Docker (no hay). PENDIENTE:
+  con un Personal Access Token de la cuenta (Dashboard → Account → Access
+  Tokens) se regenera con `--project-id` sin Docker — pedir a Daniel y
+  automatizar por migración.
+- **Env de la app:** Next lee `.env` desde `apps/web/` → las claves viven en
+  `apps/web/.env.local` (gitignoreado); el `.env` de la raíz sirve para
+  scripts/tooling.
+- **Diferido a propósito** (extras DOC3 §2, no en el alcance DOC12 de S2):
+  magic link/OAuth, sesión única por dispositivo (SessionSentinel),
+  impersonación auditada, flags de onboarding. El registro self-service es
+  la Sesión 6.

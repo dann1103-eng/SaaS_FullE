@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Los packages del monorepo exportan TypeScript fuente (sin build propio).
+  transpilePackages: ["@plataforma/core", "@plataforma/db"],
 };
 
 export default nextConfig;
