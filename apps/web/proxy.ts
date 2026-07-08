@@ -46,7 +46,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // /api/* queda FUERA: cada route handler trae su propia autenticación
+  // (CRON_SECRET en el tick, HMAC en webhooks futuros) y un redirect a
+  // /login rompería a los clientes máquina-a-máquina.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
