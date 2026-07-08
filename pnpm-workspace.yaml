@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "packages/modules/*"
+  - "tooling/*"
+
+# Heredado del template de create-next-app (evita warnings de build scripts)
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
