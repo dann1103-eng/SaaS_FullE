@@ -19,3 +19,24 @@ jobs:
       - run: pnpm turbo run typecheck
       - run: pnpm turbo run lint
       - run: pnpm turbo run test
+
+  # Test de aislamiento de tenants (CLAUDE.md regla 10 · DOC3 §1.6):
+  # levanta el stack local de Supabase (aplica migraciones + seeds y habilita
+  # el hook JWT vía config.toml) y corre la suite contra Postgres.
+  tenant-isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: pnpm install --frozen-lockfile
+      - run: supabase start
+      - run: pnpm --filter @plataforma/tenant-isolation test
+        env:
+          SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres

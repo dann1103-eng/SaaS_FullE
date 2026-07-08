@@ -3,6 +3,7 @@ packages:
   - "packages/*"
   - "packages/modules/*"
   - "tooling/*"
+  - "tooling/tests/*"
 
 # Heredado del template de create-next-app (evita warnings de build scripts)
 ignoredBuiltDependencies:
