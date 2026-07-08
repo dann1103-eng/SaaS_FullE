@@ -78,13 +78,15 @@ describe.runIf(Boolean(dbUrl))("C4: eventos y jobs (migración 0002)", () => {
     expect(row.rows[0]).toEqual({ actor_id: userA, origen: "test" });
   });
 
-  it("el outbox es append-only por API: update de authenticated afecta 0 filas", async () => {
+  it("el outbox es append-only por API: update de authenticated es 42501 explícito", async () => {
+    // Migración 0003: sin grant de update (revocado también sobre los default
+    // privileges de hosted) — el intento falla fuerte, no es un no-op.
     await h.asUser(userA, tenantA);
-    const upd = await h.client.query(
+    await h.expectSqlError(
       `update public.domain_events set processed_at = now() where tenant_id = $1`,
       [tenantA],
+      "42501",
     );
-    expect(upd.rowCount).toBe(0);
 
     await h.asOwner();
     const still = await h.client.query(
