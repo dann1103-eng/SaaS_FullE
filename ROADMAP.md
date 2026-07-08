@@ -7,7 +7,7 @@ producto por fases vive en [docs/DOC10](docs/DOC10-Roadmap.md).
 | Estado | # | Sesión (≈1 branch/PR c/u) | Entrada principal |
 |---|---|---|---|
 | ✅ 2026-07-08 | 0 | Scaffold monorepo + CI + CLAUDE.md | DOC3 §0, DOC12 §3 |
-| ⬜ | 1 | Migración 0001 tenancy + RLS template + test de aislamiento + seeds | DOC3 §1 |
+| ✅ 2026-07-08 | 1 | Migración 0001 tenancy + RLS template + test de aislamiento + seeds | DOC3 §1 |
 | ⬜ | 2 | C1 Auth (Supabase Auth + memberships + JWT claims + middleware + requirePermission) | DOC3 §2 |
 | ⬜ | 3 | C4 outbox domain_events + jobs (cosecha runner FM) + cron tick | DOC3 §3, donante FM |
 | ⬜ | 4 | C5 notificaciones (deliveries idempotentes + feed + transporte email) | DOC3 §4, donantes ADEC/TAS |
@@ -45,3 +45,28 @@ Después de la sesión 16: design partners reales → feedback → Fase 2 (DOC10
 - **Ojo (aviso del template):** `apps/web/AGENTS.md` advierte que esta versión
   de Next.js tiene cambios de API respecto a versiones anteriores — leer
   `node_modules/next/dist/docs/` antes de escribir código de la app (Sesión 2+).
+
+## Notas de la Sesión 1 (2026-07-08)
+
+- **Migración aplicada al proyecto real** `ehllkqxrgkexlhrswotk` (us-east-1)
+  vía `supabase db push --db-url` (session pooler). Historial CLI:
+  `20260708062040_tenancy_foundation.sql` (incluye grants explícitos §11.b,
+  hallazgo del CI).
+- **Test de aislamiento 9/9 verde contra el proyecto remoto**
+  (`tooling/tests/tenant-isolation`): simula el contexto PostgREST con
+  `set local role` + `request.jwt.claims` dentro de una transacción con
+  rollback — cero residuo verificado. Toda migración futura añade aquí sus
+  asserts (CLAUDE.md regla 10). En CI corre el job `tenant-isolation` con el
+  stack local (se dispara en PRs y pushes a main).
+- **⚠️ PENDIENTE MANUAL (bloquea Sesión 2):** habilitar el hook JWT en el
+  Dashboard → Authentication → Hooks → "Custom Access Token" →
+  `public.custom_access_token_hook`. Sin esto el claim `tenant_id` no viaja
+  y las políticas devuelven vacío. (En local/CI ya está vía `config.toml`.)
+- **Región (resuelto):** el primer proyecto se creó en `ca-central-1`; se
+  recreó en `us-east-1` conforme a DOC12 §1 (colocación con las funciones de
+  Vercel + menor latencia desde El Salvador). El proyecto de `ca-central-1`
+  (`mvdfqibvhnoslgpekhyv`) queda pendiente de **borrar** por Daniel.
+- **Credenciales:** `.env` local (gitignoreado) completo: URL, anon key,
+  service_role key y `SUPABASE_DB_URL` del proyecto definitivo.
+- **Seeds** (`supabase/seed.sql`): solo stack local/CI (2 tenants demo);
+  `db push` no los ejecuta contra remoto, por diseño.

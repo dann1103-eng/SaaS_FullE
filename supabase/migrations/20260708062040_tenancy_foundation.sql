@@ -406,6 +406,21 @@ create policy tenant_modules_write on public.tenant_modules
 alter table public.tenant_counters enable row level security;
 
 -- ----------------------------------------------------------------------------
+-- 11.b GRANTS BASE (paridad con los default privileges de la plataforma)
+--      En Supabase hosted, las tablas creadas como `postgres` heredan grants
+--      para anon/authenticated/service_role vía ALTER DEFAULT PRIVILEGES; en
+--      el stack local/CI las migraciones corren con otro rol y esos defaults
+--      NO aplican (lo descubrió el test de aislamiento en CI). Grants
+--      explícitos = mismo comportamiento en todo entorno; la seguridad real
+--      la imponen las políticas RLS de la sección 11.
+-- ----------------------------------------------------------------------------
+grant select, insert, update, delete
+  on public.tenants, public.units, public.users, public.roles,
+     public.role_permissions, public.memberships, public.tenant_modules,
+     public.tenant_counters
+  to anon, authenticated, service_role;
+
+-- ----------------------------------------------------------------------------
 -- 12. FUNCIONES DE NEGOCIO DEL CORE
 -- ----------------------------------------------------------------------------
 

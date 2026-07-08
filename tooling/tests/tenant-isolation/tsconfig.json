@@ -1,0 +1,7 @@
+{
+  "extends": "@plataforma/tsconfig/base.json",
+  "compilerOptions": {
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}
