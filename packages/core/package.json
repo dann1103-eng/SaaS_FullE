@@ -11,9 +11,14 @@
     "lint": "eslint src",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "@plataforma/db": "workspace:*",
+    "@supabase/supabase-js": "^2.110.1"
+  },
   "devDependencies": {
     "@plataforma/eslint-config": "workspace:*",
     "@plataforma/tsconfig": "workspace:*",
+    "@types/node": "^24",
     "eslint": "^9",
     "typescript": "^5",
     "vitest": "^4.1.10"
