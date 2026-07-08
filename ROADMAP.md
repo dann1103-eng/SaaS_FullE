@@ -48,9 +48,10 @@ Después de la sesión 16: design partners reales → feedback → Fase 2 (DOC10
 
 ## Notas de la Sesión 1 (2026-07-08)
 
-- **Migración aplicada al proyecto real** `mvdfqibvhnoslgpekhyv` vía
-  `supabase db push --db-url` (session pooler). Historial CLI:
-  `20260708062040_tenancy_foundation.sql`.
+- **Migración aplicada al proyecto real** `ehllkqxrgkexlhrswotk` (us-east-1)
+  vía `supabase db push --db-url` (session pooler). Historial CLI:
+  `20260708062040_tenancy_foundation.sql` (incluye grants explícitos §11.b,
+  hallazgo del CI).
 - **Test de aislamiento 9/9 verde contra el proyecto remoto**
   (`tooling/tests/tenant-isolation`): simula el contexto PostgREST con
   `set local role` + `request.jwt.claims` dentro de una transacción con
@@ -61,14 +62,11 @@ Después de la sesión 16: design partners reales → feedback → Fase 2 (DOC10
   Dashboard → Authentication → Hooks → "Custom Access Token" →
   `public.custom_access_token_hook`. Sin esto el claim `tenant_id` no viaja
   y las políticas devuelven vacío. (En local/CI ya está vía `config.toml`.)
-- **Región:** el proyecto quedó en `ca-central-1`; DOC12 §1 recomendaba
-  `us-east-1` (como los donantes). Si se quiere corregir, este es el momento
-  (el proyecto está vacío: recrear + `db push` + hook, ~10 min). Decisión del
-  fundador.
-- **Credenciales:** `.env` local (gitignoreado) tiene `SUPABASE_DB_URL`;
-  faltan `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`
-  (Dashboard → Settings → API Keys) — necesarias desde la Sesión 2.
-  Recomendado rotar la contraseña de BD si se compartió por canales no
-  seguros.
+- **Región (resuelto):** el primer proyecto se creó en `ca-central-1`; se
+  recreó en `us-east-1` conforme a DOC12 §1 (colocación con las funciones de
+  Vercel + menor latencia desde El Salvador). El proyecto de `ca-central-1`
+  (`mvdfqibvhnoslgpekhyv`) queda pendiente de **borrar** por Daniel.
+- **Credenciales:** `.env` local (gitignoreado) completo: URL, anon key,
+  service_role key y `SUPABASE_DB_URL` del proyecto definitivo.
 - **Seeds** (`supabase/seed.sql`): solo stack local/CI (2 tenants demo);
   `db push` no los ejecuta contra remoto, por diseño.
